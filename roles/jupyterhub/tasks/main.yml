@@ -1,7 +1,11 @@
 ---
-- name: Ensure user exists
-  ansible.builtin.user:
-    name: "{{ jupyterhub_user }}"
-    state: present
-    shell: /bin/bash
-    group: "user"
+# - name: Ensure user exists
+#  ansible.builtin.user:
+#    name: "{{ item }}"
+#    state: present
+#    shell: /bin/bash
+#    group: users
+#  loop: "{{ jupyterhub_users }}"
+
+- name: Setup Python virtual environment for qcuser
+  ansible.builtin.import_tasks: qcuser.yml
