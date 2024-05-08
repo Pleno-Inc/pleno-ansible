@@ -1,0 +1,67 @@
+---
+- name: Ensure user exists
+  ansible.builtin.user:
+    name: qcuser
+    state: present
+    shell: /bin/bash
+    group: users
+  register: qcuser
+  become: true
+
+- name: Setup Python virtual environment
+  ansible.builtin.pip:
+    name: pip>=23.1.2
+    state: present
+    virtualenv: "{{ qcuser.home }}/qcuser-venv"
+    virtualenv_site_packages: true
+    virtualenv_command: /opt/miniconda3/bin/python3.11 -m venv
+  become: true
+  become_user: qcuser
+
+- name: Install ipykernel and poetry
+  ansible.builtin.pip:
+    name:
+      - ipykernel
+      - poetry
+    state: present
+    virtualenv: "{{ qcuser.home }}/qcuser-venv"
+  become: true
+  become_user: qcuser
+
+- name: Setup pykernel config
+  ansible.builtin.command:
+    cmd: >-
+      "{{ qcuser.home }}/qcuser-venv/bin/python"
+      -m ipykernel install
+      --user
+      "--name={{ qcuser.name }}"
+      --display-name="Python (QC users)"
+    creates: "{{ qcuser.home }}/.local/share/jupyter/kernels/{{ qcuser.name }}/kernel.json"
+  become: true
+  become_user: qcuser
+
+- name: Memorize Pypi password
+  ansible.builtin.copy:
+    src: netrc
+    dest: "{{ qcuser.home }}/.netrc"
+    mode: "0600"
+  become: true
+  become_user: qcuser
+
+# Assuming the ssh key is already registered on Github, clone the repo
+- name: Clone pleno-droid.git
+  ansible.builtin.git:
+    repo: git@github.com:Pleno-Inc/pleno-droid.git
+    version: 290479db525db8bd0ae53a39a02e39b1daaf8ba6
+    dest: "{{ qcuser.home }}/pleno-droid"
+  become: true
+  become_user: qcuser
+
+# Note(Antony): Use Ansible community library for Poetry
+- name: Resolve dependencies with Poetry
+  ansible.builtin.command:
+    chdir: "{{ qcuser.home }}/pleno-droid"
+    cmd: "{{ qcuser.home }}/qcuser-venv/bin/poetry install"
+  changed_when: false
+  become: true
+  become_user: qcuser
