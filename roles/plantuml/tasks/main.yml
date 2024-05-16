@@ -1,0 +1,40 @@
+---
+- name: Setup plantuml user
+  ansible.builtin.user:
+    name: plantuml
+    state: present
+    shell: /bin/bash
+    home: /srv/plantuml
+    group: users
+  register: plantuml_user
+  become: true
+
+- name: Install Java
+  ansible.builtin.apt:
+    name: openjdk-17-jre
+    state: present
+  become: true
+
+- name: Install plantuml
+  ansible.builtin.copy:
+    src: plantuml.jar
+    dest: "{{ plantuml_user.home }}/plantuml.jar"
+  become: true
+  become_user: "{{ plantuml_user.name }}"
+
+- name: Setup plantuml service
+  ansible.builtin.template:
+    src: plantuml.service.j2
+    dest: /etc/systemd/system/plantuml.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Reload systemd
+
+- name: Start plantuml service
+  ansible.builtin.systemd:
+    name: plantuml
+    state: started
+    enabled: true
+  become: true

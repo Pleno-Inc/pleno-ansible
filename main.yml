@@ -1,5 +1,10 @@
 ---
-- name: Run everything
-  hosts: local
+- name: Setup JupyterHub server
+  hosts: jupyterhub
   roles:
     - jupyterhub
+
+- name: Setup Diagram rendering server
+  hosts: dev
+  roles:
+    - plantuml

@@ -1,0 +1,10 @@
+[Unit]
+Description=Plantuml server
+Requires=network.target
+After=syslog.target network.target
+
+[Service]
+ExecStart=java -jar {{ plantuml_user.home }}/plantuml.jar -picoweb:{{ plantuml_port }}
+
+[Install]
+WantedBy=multi-user.target
