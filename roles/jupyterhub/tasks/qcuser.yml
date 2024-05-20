@@ -52,7 +52,7 @@
 - name: Clone pleno-droid.git
   ansible.builtin.git:
     repo: git@github.com:Pleno-Inc/pleno-droid.git
-    version: 290479db525db8bd0ae53a39a02e39b1daaf8ba6
+    version: 71b21f4df4a08cf7436fd28d158b190ffb76f8d0
     dest: "{{ qcuser.home }}/pleno-droid"
   become: true
   become_user: qcuser
@@ -63,5 +63,33 @@
     chdir: "{{ qcuser.home }}/pleno-droid"
     cmd: "{{ qcuser.home }}/qcuser-venv/bin/poetry install"
   changed_when: false
+  become: true
+  become_user: qcuser
+
+# Provides visualization code
+- name: Clone pleno-qc.git
+  ansible.builtin.git:
+    repo: git@github.com:Pleno-Inc/pleno-qc.git
+    version: optical-qc-engine
+    dest: "{{ qcuser.home }}/pleno-qc"
+  become: true
+  become_user: qcuser
+
+# Install pleno-qc dependencies
+- name: Install pleno-qc dependencies
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: present
+    virtualenv: "{{ qcuser.home }}/qcuser-venv"
+  loop:
+    - scikit-image
+    - parsimonious
+
+- name: Install pleno-qc
+  ansible.builtin.pip:
+    chdir: "{{ qcuser.home }}/pleno-qc"
+    name: .
+    state: present
+    virtualenv: "{{ qcuser.home }}/qcuser-venv"
   become: true
   become_user: qcuser

@@ -19,6 +19,7 @@
   ansible.builtin.copy:
     src: plantuml.jar
     dest: "{{ plantuml_user.home }}/plantuml.jar"
+    mode: "0755"
   become: true
   become_user: "{{ plantuml_user.name }}"
 
