@@ -75,21 +75,15 @@
   become: true
   become_user: qcuser
 
-# Install pleno-qc dependencies
-- name: Install pleno-qc dependencies
-  ansible.builtin.pip:
-    name: "{{ item }}"
-    state: present
-    virtualenv: "{{ qcuser.home }}/qcuser-venv"
-  loop:
-    - scikit-image
-    - parsimonious
-
 - name: Install pleno-qc
   ansible.builtin.pip:
     chdir: "{{ qcuser.home }}/pleno-qc"
-    name: .
+    name:
+      - scikit-image
+      - parsimonious
+      - .
     state: present
+    extra_args: --extra-index-url https://pypi.plenoinc.com
     virtualenv: "{{ qcuser.home }}/qcuser-venv"
   become: true
   become_user: qcuser
