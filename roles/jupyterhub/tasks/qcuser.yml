@@ -66,6 +66,17 @@
   become: true
   become_user: qcuser
 
+- name: Install pleno-droid
+  ansible.builtin.pip:
+    chdir: "{{ qcuser.home }}/pleno-droid"
+    name: .
+    state: present
+    extra_args: --extra-index-url https://pypi.plenoinc.com
+    virtualenv: "{{ qcuser.home }}/qcuser-venv"
+  changed_when: false
+  become: true
+  become_user: qcuser
+
 # Provides visualization code
 - name: Clone pleno-qc.git
   ansible.builtin.git:
@@ -79,8 +90,10 @@
   ansible.builtin.pip:
     chdir: "{{ qcuser.home }}/pleno-qc"
     name:
+      - opencv-python
       - scikit-image
       - parsimonious
+      - matplotlib
       - .
     state: present
     extra_args: --extra-index-url https://pypi.plenoinc.com
