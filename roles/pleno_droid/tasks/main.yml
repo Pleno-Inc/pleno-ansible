@@ -1,0 +1,47 @@
+---
+- name: Setup performance comparison directory
+  ansible.builtin.file:
+    path: /home/antony/Projects/performance-study
+    state: directory
+    mode: "0755"
+
+- name: (Droid2) Setup execution environment
+  ansible.builtin.pip:
+    name: pip>=23.2.1
+    state: present
+    virtualenv: "{{ pleno_droid_droid2_venv }}"
+    virtualenv_site_packages: true
+    virtualenv_command: /opt/miniconda3/bin/python3.11 -m venv
+
+- name: (Droid2) Install droid and dependencies
+  ansible.builtin.pip:
+    name: "pleno_droid=={{ pleno_droid_droid2_version }}"
+    state: present
+    virtualenv: "{{ pleno_droid_droid2_venv }}"
+    extra_args: "--extra-index-url https://pypi.plenoinc.com/pypi/simple/"
+
+- name: (Droid1) Setup execution environment
+  ansible.builtin.pip:
+    name: pip>=23.2.1
+    state: present
+    virtualenv: "{{ pleno_droid_droid1_venv }}"
+    virtualenv_site_packages: true
+    virtualenv_command: /opt/miniconda3/bin/python3.11 -m venv
+
+- name: (Droid1) Install droid and dependencies
+  ansible.builtin.pip:
+    name: "pleno_droid=={{ pleno_droid_droid1_version }}"
+    state: present
+    virtualenv: "{{ pleno_droid_droid1_venv }}"
+    extra_args: "--extra-index-url https://pypi.plenoinc.com/pypi/simple/"
+
+- name: Install run script
+  ansible.builtin.template:
+    src: run.sh
+    dest: "{{ pleno_droid_rootdir }}/run-{{ item.version }}.sh"
+    mode: "0755"
+  loop:
+    - version: "{{ pleno_droid_droid1_version }}"
+      venv: "{{ pleno_droid_droid1_venv }}"
+    - version: "{{ pleno_droid_droid2_version }}"
+      venv: "{{ pleno_droid_droid2_venv }}"

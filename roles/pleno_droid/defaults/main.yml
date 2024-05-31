@@ -1,0 +1,6 @@
+---
+pleno_droid_rootdir: "{{ ansible_env.HOME }}/Projects/performance-study/"
+pleno_droid_droid2_version: 2.0.1
+pleno_droid_droid2_venv: "{{ pleno_droid_rootdir }}/{{ pleno_droid_droid2_version }}-venv"
+pleno_droid_droid1_version: 1.24.1
+pleno_droid_droid1_venv: "{{ pleno_droid_rootdir }}/{{ pleno_droid_droid1_version }}-venv"
