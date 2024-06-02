@@ -1,0 +1,117 @@
+---
+- hosts: all
+  become: true 
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies
+      apt:
+        name:
+          - build-essential
+          - munge
+          - libmunge-dev
+          - rng-tools
+          - openssl
+          - libssl-dev
+          - libpam0g-dev
+          - wget
+        state: present
+
+    - name: Enable and start rng-tools
+      systemd:
+        name: rng-tools
+        enabled: yes
+        state: started
+
+    - name: Enable and start munge
+      systemd:
+        name: munge
+        enabled: yes
+        state: started
+
+- hosts: slurm-master
+  become: true
+  tasks:
+    - name: Download SLURM source code
+      get_url:
+        url: https://download.schedmd.com/slurm/slurm-21.08.8.tar.bz2
+        dest: /usr/local/src/slurm-21.08.8.tar.bz2
+
+    - name: Extract SLURM source code
+      unarchive:
+        src: /usr/local/src/slurm-21.08.8.tar.bz2
+        dest: /usr/local/src
+        remote_src: yes
+
+    - name: Install SLURM
+      shell: |
+        cd /usr/local/src/slurm-21.08.8
+        ./configure
+        make
+        make install
+
+    - name: Copy SLURM configuration
+      template:
+        src: templates/slurm.conf.j2
+        dest: /usr/local/etc/slurm.conf
+
+    - name: Copy cgroup configuration
+      template:
+        src: templates/cgroup.conf.j2
+        dest: /usr/local/etc/cgroup.conf
+
+    - name: Create SLURM spool directory
+      file:
+        path: /var/spool/slurm
+        state: directory
+        owner: slurm
+        group: slurm
+        mode: 0755
+
+    - name: Create SLURM log directory
+      file:
+        path: /var/log/slurm
+        state: directory
+        owner: slurm
+        group: slurm
+        mode: 0755
+
+    - name: Start and enable slurmctld
+      systemd:
+        name: slurmctld
+        enabled: yes
+        state: started
+
+- hosts: slurm-nodes
+  become: true
+  tasks:
+    - name: Download SLURM source code
+      get_url:
+        url: https://download.schedmd.com/slurm/slurm-21.08.8.tar.bz2
+        dest: /usr/local/src/slurm-21.08.8.tar.bz2
+
+    - name: Extract SLURM source code
+      unarchive:
+        src: /usr/local/src/slurm-21.08.8.tar.bz2
+        dest: /usr/local/src
+        remote_src: yes
+
+    - name: Install SLURM
+      shell: |
+        cd /usr/local/src/slurm-21.08.8
+        ./configure
+        make
+        make install
+
+    - name: Copy SLURM configuration
+      template:
+        src: templates/slurm.conf.j2
+        dest: /usr/local/etc/slurm.conf
+
+    - name: Start and enable slurmd
+      systemd:
+        name: slurmd
+        enabled: yes
+        state: started
