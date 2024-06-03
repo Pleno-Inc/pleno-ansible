@@ -40,13 +40,13 @@
   become: true
   become_user: qcuser
 
-- name: Memorize Pypi password
-  ansible.builtin.copy:
-    src: netrc
-    dest: "{{ qcuser.home }}/.netrc"
-    mode: "0600"
-  become: true
-  become_user: qcuser
+# - name: Memorize Pypi password
+#   ansible.builtin.copy:
+#     src: netrc
+#     dest: "{{ qcuser.home }}/.netrc"
+#     mode: "0600"
+#   become: true
+#   become_user: qcuser
 
 # Assuming the ssh key is already registered on Github, clone the repo
 - name: Clone pleno-droid.git
