@@ -1,0 +1,62 @@
+---
+- name: Create a home folder for pyenv
+  ansible.builtin.user:
+    name: pyenv
+    state: present
+    shell: /bin/bash
+    home: /srv/pyenv
+  become: true
+  register: pyenv_user
+
+- name: Install linux-perf tools and Python dependencies
+  ansible.builtin.apt:
+    name:
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - linux-tools-generic
+    state: present
+  become: true
+
+- name: Compile Python 3.12.3 with linux-perf support
+  ansible.builtin.command:
+    cmd: /srv/pyenv/pyenv_src/bin/pyenv install 3.12.3
+    creates: "{{ pyenv_user.home }}/.pyenv/versions/3.12.3"
+  environment:
+    PYTHON_CFLAGS: '-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -O3'
+  become: true
+  become_user: pyenv
+
+- name: Create demo folder
+  ansible.builtin.file:
+    path: "{{ pyenv_user.home }}/demo"
+    state: directory
+    mode: "0755"
+  become: true
+  become_user: pyenv
+
+- name: Install demo code
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ pyenv_user.home }}/demo/{{ item }}"
+    mode: "0644"
+  with_items:
+    - hello_world.py
+    - run-perf.sh
+  become: true
+  become_user: pyenv
+
+# - name: Override Kernel-perf restrictions
+#  ansible.builtin.sysctl:
+#    name: kernel.perf_event_paranoid
+#    value: -1
+#    state: present
+#    sysctl_set: yes
+#  become: yes
+# - name: Disable kptr restriction
+#  ansible.builtin.sysctl:
+#    name: kernel.kptr_restrict
+#    value: 0
+#    state: present
+#    sysctl_set: yes
+#  become: yes

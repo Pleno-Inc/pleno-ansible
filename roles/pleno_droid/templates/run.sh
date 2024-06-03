@@ -2,7 +2,11 @@
 DROID={{ item.venv }}/bin/python
 RUN_FOLDER=/mnt/nas/DecodingRuns/KET-11/20240523_KET11_JW_2412160129_NIPT_3283plex_EXP_071_P2
 
-$DROID -m pleno_droid \
+# Samples per second
+FPS=90
+
+exec perf record -F $FPS -g -o "{{ pleno_droid_rootdir }}/perf-{{ item.version }}.data" \
+$DROID -X perf -m pleno_droid \
 	-i "$RUN_FOLDER" \
 	-o "/mnt/nas/_USERS/Antony/BIOINF-1426-{{ item.version }}" \
 	-c "decode_proto1.yaml" \

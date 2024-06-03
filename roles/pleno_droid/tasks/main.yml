@@ -1,7 +1,7 @@
 ---
 - name: Setup performance comparison directory
   ansible.builtin.file:
-    path: /home/antony/Projects/performance-study
+    path: "{{ pleno_droid_rootdir }}"
     state: directory
     mode: "0755"
 
@@ -11,7 +11,7 @@
     state: present
     virtualenv: "{{ pleno_droid_droid2_venv }}"
     virtualenv_site_packages: true
-    virtualenv_command: /opt/miniconda3/bin/python3.11 -m venv
+    virtualenv_command: "{{ pyenv_user.home }}/.pyenv/versions/3.12.3/bin/python -m venv"
 
 - name: (Droid2) Install droid and dependencies
   ansible.builtin.pip:
@@ -26,7 +26,7 @@
     state: present
     virtualenv: "{{ pleno_droid_droid1_venv }}"
     virtualenv_site_packages: true
-    virtualenv_command: /opt/miniconda3/bin/python3.11 -m venv
+    virtualenv_command: "{{ pyenv_user.home }}/.pyenv/versions/3.12.3/bin/python -m venv"
 
 - name: (Droid1) Install droid and dependencies
   ansible.builtin.pip:
