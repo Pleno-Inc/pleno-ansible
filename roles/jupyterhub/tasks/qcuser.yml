@@ -77,11 +77,21 @@
   become: true
   become_user: qcuser
 
+# Download the OpenHTF framework source code, but don't install it. We don't use
+# the framework's web frontend and the test history serialization with protobuf.
+- name: Clone google/openhtf
+  ansible.builtin.git:
+    repo: https://github.com/google/openhtf.git
+    version: 865512ad0eb8b5bf9a870f1ca30a92899593e63a
+    dest: "{{ qcuser.home }}/openhtf"
+  become: true
+  become_user: qcuser
+
 # Provides visualization code
 - name: Clone pleno-qc.git
   ansible.builtin.git:
     repo: git@github.com:Pleno-Inc/pleno-qc.git
-    version: optical-qc-engine
+    version: bo/optical-qc
     dest: "{{ qcuser.home }}/pleno-qc"
   become: true
   become_user: qcuser
@@ -95,6 +105,10 @@
       - parsimonious
       - matplotlib
       - .
+      # OpenHTF minimal dependencies
+      - colorama>=0.3.9
+      - contextlib2>=0.5.1
+      - inflection
     state: present
     extra_args: --extra-index-url https://pypi.plenoinc.com
     virtualenv: "{{ qcuser.home }}/qcuser-venv"
