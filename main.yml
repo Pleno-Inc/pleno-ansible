@@ -8,3 +8,4 @@
   hosts: dev
   roles:
     - plantuml
+    - ntp_server

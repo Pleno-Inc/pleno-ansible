@@ -1,0 +1,14 @@
+---
+- name: Install NTP server
+  ansible.builtin.apt:
+    name: ntp
+    state: present
+  become: true
+
+- name: Configure NTP server
+  ansible.builtin.copy:
+    src: ntp.conf
+    dest: /etc/ntp.conf
+    mode: "0644"
+  notify: Restart NTP
+  become: true
