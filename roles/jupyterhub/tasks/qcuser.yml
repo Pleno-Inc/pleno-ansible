@@ -91,7 +91,7 @@
 - name: Clone pleno-qc.git
   ansible.builtin.git:
     repo: git@github.com:Pleno-Inc/pleno-qc.git
-    version: bo/optical-qc
+    version: 066f7260c7ba1c8bdcc626444d6e8564d972d126
     dest: "{{ qcuser.home }}/pleno-qc"
   become: true
   become_user: qcuser
